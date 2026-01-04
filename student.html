@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Attendance</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- QR Scanner Library -->
+    <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+</head>
+<body>
+    <div class="container fade-in">
+        <h2>Student Portal</h2>
+        
+        <div id="login-section">
+            <form id="student-login-form">
+                <div class="form-group">
+                    <label for="student-id">Student SRN</label>
+                    <input type="text" id="student-id" placeholder="e.g. 02FE24BCS410" required>
+                </div>
+                <div class="form-group">
+                    <label for="student-password">Password</label>
+                    <input type="password" id="student-password" placeholder="Password" required>
+                </div>
+                <button type="submit" class="btn">Login & Scan</button>
+            </form>
+        </div>
+
+        <div id="scan-section" style="display:none;">
+            <h3>Scan QR Code</h3>
+            
+            <div id="reader" style="width: 100%; min-height: 250px; margin-bottom: 15px; background: #eee;"></div>
+            
+            <p id="scan-status">Requesting Camera Access...</p>
+
+            <!-- Fallback for HTTP issues -->
+            <div class="form-group" style="margin-top: 20px; border-top: 1px dashed #ccc; padding-top: 20px;">
+                <label for="scan-input" style="font-size: 0.8rem; color: #777;">Camera not working? Enter Code:</label>
+                <div style="display: flex; gap: 10px;">
+                    <input type="text" id="scan-input" placeholder="SES-XXXXXX">
+                    <button id="manual-submit" class="btn" style="padding: 0.5rem 1rem; font-size: 0.9rem;">Submit</button>
+                </div>
+            </div>
+            
+            <div id="scan-result" class="message"></div>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>

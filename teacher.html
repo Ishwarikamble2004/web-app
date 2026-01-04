@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teacher Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container fade-in">
+        <h2>Teacher Portal</h2>
+        
+        <!-- LOGIN SECTION -->
+        <div id="login-section">
+            <p style="font-size:0.9rem; color:#666; margin-bottom:15px;">Use your predefined Faculty ID</p>
+            <form id="teacher-login-form">
+                <div class="form-group">
+                    <label for="teacher-id">Faculty ID</label>
+                    <input type="text" id="teacher-id" placeholder="e.g. T001" required>
+                </div>
+                <div class="form-group">
+                    <label for="teacher-password">Password</label>
+                    <input type="password" id="teacher-password" placeholder="Password" required>
+                </div>
+                <button type="submit" class="btn">Login</button>
+            </form>
+        </div>
+
+        <!-- MAIN DASHBOARD (Hidden until login) -->
+        <div id="dashboard-section" style="display:none;">
+            
+            <div style="text-align:left; margin-bottom:20px; border-bottom:1px solid #eee; padding-bottom:10px;">
+                <h4 style="margin:0; color:var(--primary-color);">Welcome, <span id="teacher-name"></span></h4>
+                <p style="margin:0; font-size:0.9rem; color:#666;">Dept: <span id="teacher-dept"></span></p>
+            </div>
+
+            <!-- Tabs/Navigation -->
+            <div style="display:flex; justify-content:center; gap:10px; margin-bottom:20px;">
+                <button id="btn-create-view" class="btn">Create Session</button>
+                <button id="btn-report-view" class="btn" style="background: #ccc;">View Reports</button>
+            </div>
+
+            <!-- CREATE SESSION VIEW -->
+            <div id="setup-section">
+                <h3>Start New Class</h3>
+                <form id="session-form">
+                    <div class="form-group">
+                        <label for="branch">Branch (Auto-filled)</label>
+                        <input type="text" id="branch" readonly style="background:#f0f0f0; color:#555;">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="semester">Semester</label>
+                        <select id="semester" required>
+                            <option value="">Select Semester</option>
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                            <option value="4">4</option>
+                            <option value="5">5</option>
+                            <option value="6">6</option>
+                            <option value="7">7</option>
+                            <option value="8">8</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="division">Division</label>
+                        <select id="division" required>
+                            <option value="">Select Division</option>
+                            <option value="A">Division A</option>
+                            <option value="B">Division B</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="course">Select Course</label>
+                        <select id="course" required>
+                            <option value="">Select Course</option>
+                            <!-- Populated dynamically based on semester -->
+                        </select>
+                    </div>
+<div class="form-group">
+    <label for="timeslot">Select Time Slot</label>
+    <select id="timeslot" required></select>
+</div>
+
+                    <button type="submit" class="btn">Generate QR Code</button>
+                </form>
+            </div>
+
+            <!-- REPORT VIEW -->
+            <div id="report-section" style="display:none;">
+                <h3>Attendance Reports</h3>
+                
+                <div class="form-group">
+                    <label for="report-course">Filter by Course:</label>
+                    <select id="report-course">
+                         <!-- Populated dynamically -->
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="report-semester">Filter by Semester:</label>
+                    <select id="report-semester">
+                        <option value="">All Semesters</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="report-division">Filter by Division:</label>
+                    <select id="report-division">
+                        <option value="">All Divisions</option>
+                        <option value="A">Division A</option>
+                        <option value="B">Division B</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="report-date">Select Date:</label>
+                    <input type="date" id="report-date">
+                </div>
+                <div class="form-group">
+                    <label for="report-timeslot">Time Slot:</label>
+                    <select id="report-timeslot">
+                        <option value="">All Time Slots</option>
+                    </select>
+                </div>
+                
+                <button id="fetch-report" class="btn">Get Attendance</button>
+                
+                <div style="margin-top:20px;">
+                    <h4>Total Students: <span id="report-total" style="color:var(--primary-color); font-size:1.2rem;">0</span></h4>
+                    <h4>Present: <span id="report-present" style="color:green; font-size:1.2rem;">0</span> | Absent: <span id="report-absent" style="color:red; font-size:1.2rem;">0</span></h4>
+                </div>
+
+                <div style="margin-top:20px; max-height:300px; overflow-y:auto;">
+                    <table style="width:100%; text-align:left; border-collapse: collapse;">
+                        <thead>
+                            <tr style="background:#eee;">
+                                <th style="padding:8px;">Student ID</th>
+                                <th style="padding:8px;">Name</th>
+                                <th style="padding:8px;">Division</th>
+                                <th style="padding:8px;">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="report-table-body">
+                            <!-- Rows go here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- LIVE SESSION VIEW -->
+            <div id="live-section" style="display:none;">
+                <h3>Active Session</h3>
+                <p>Session Code: <strong id="session-code" style="color: var(--secondary-color);"></strong></p>
+                <p style="font-size:0.9rem;">Course: <span id="live-course-name"></span></p>
+                
+                <div id="qr-display">
+                    <div class="qr-placeholder" id="qr-placeholder">Generating...</div>
+                </div>
+                
+                <p>Time Remaining: <span id="timer">60</span>s</p>
+                
+                <div style="margin-top: 2rem;">
+                    <h4>Live Attendance (<span id="present-count">0/0</span>)</h4>
+                    <ul id="attendee-list"></ul>
+                </div>
+                
+                <button id="end-session" class="btn btn-danger" style="margin-top: 1.5rem;">End Session</button>
+            </div>
+        </div>
+
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
