@@ -36,7 +36,7 @@ app.use(bodyParser.json());
 app.use(express.static('.'));
 
 // MongoDB Connection
-const DB_URI = process.env.NODE_ENV === 'test' ? 'mongodb://localhost:27017/attendance_test' : 'mongodb://localhost:27017/attendance_db';
+const DB_URI = process.env.NODE_ENV === 'test' ? 'mongodb://localhost:27017/attendance_test_v2' : 'mongodb://localhost:27017/attendance_db_v2';
 
 mongoose.connect(DB_URI, {
     useNewUrlParser: true,
