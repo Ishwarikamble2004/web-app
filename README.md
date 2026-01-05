@@ -28,3 +28,21 @@ npm install
 # Start local MongoDB or set MONGODB_URI to a reachable MongoDB
 npm start
 ```
+
+Local separate teacher/student servers (for phone scanning):
+
+- Start the app locally (it will open two HTTP ports by default):
+
+```bash
+# teacher -> http://<your-computer-ip>:3000/teacher.html
+# student -> http://<your-computer-ip>:3001/student.html
+npm start
+```
+
+You can override ports with env vars:
+
+```bash
+PORT_TEACHER=4000 PORT_STUDENT=4001 npm start
+```
+
+Note: Render exposes a single public port; the separate-ports behavior only runs when `NODE_ENV` is not `production`.

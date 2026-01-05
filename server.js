@@ -411,12 +411,27 @@ module.exports.seedStudents = seedStudents;
 
 // Only start server if not in test mode
 if (require.main === module) {
-    // Start a single HTTP server which Render will expose with TLS.
-    const httpServer = require('http').createServer(app);
-    httpServer.listen(PORT, '0.0.0.0', () => {
-        const localIp = getLocalIpAddress();
-        console.log(`Server listening on http://0.0.0.0:${PORT}`);
-        console.log(`Local network URL: http://${localIp}:${PORT}`);
-    });
+    const http = require('http');
+    // In production (Render) we listen on the provided PORT. Locally we start
+    // two servers on separate ports for teacher and student so phones can
+    // scan different QR codes (same machine IP, different ports).
+    const localIp = getLocalIpAddress();
+    if (process.env.NODE_ENV === 'production' || process.env.RENDER) {
+        const server = http.createServer(app);
+        server.listen(PORT, '0.0.0.0', () => {
+            console.log(`Server listening on http://0.0.0.0:${PORT}`);
+        });
+    } else {
+        const teacherPort = parseInt(process.env.PORT_TEACHER || PORT || 3000, 10);
+        const studentPort = parseInt(process.env.PORT_STUDENT || 3001, 10);
+
+        http.createServer(app).listen(teacherPort, '0.0.0.0', () => {
+            console.log(`Teacher UI: http://${localIp}:${teacherPort}/teacher.html`);
+        });
+
+        http.createServer(app).listen(studentPort, '0.0.0.0', () => {
+            console.log(`Student UI: http://${localIp}:${studentPort}/student.html`);
+        });
+    }
 }
 
