@@ -2,33 +2,11 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const bodyParser = require('body-parser');
+
 const os = require('os');
-const https = require('https');
-const fs = require('fs');
-const ngrok = require('ngrok');
-
-// Try to load selfsigned
-let selfsigned;
-try {
-    selfsigned = require('selfsigned');
-} catch (e) {
-    console.error("ERROR: 'selfsigned' module is missing. Running: npm install selfsigned");
-    process.exit(1);
-}
-
 const app = express();
-const PORT = 3000;
-
-// Generate Certificates automatically
-const localIp = getLocalIpAddress();
-const attrs = [
-    { name: 'commonName', value: 'localhost' },
-    { name: 'countryName', value: 'US' },
-    { name: 'stateOrProvinceName', value: 'CA' },
-    { name: 'localityName', value: 'San Francisco' },
-    { name: 'organizationName', value: 'Attendance System' }
-];
-const pems = selfsigned.generate(attrs, { days: 365, keySize: 2048 });
+const PORT = process.env.PORT || 3000;
+// Note: For Render deployment we use plain HTTP and rely on Render's TLS.
 
 // Middleware
 app.use(cors());
@@ -36,7 +14,9 @@ app.use(bodyParser.json());
 app.use(express.static('.'));
 
 // MongoDB Connection
-const DB_URI = process.env.NODE_ENV === 'test' ? 'mongodb://localhost:27017/attendance_test_v2' : 'mongodb://localhost:27017/attendance_db_v2';
+const DB_URI = process.env.NODE_ENV === 'test'
+    ? (process.env.MONGODB_URI || 'mongodb://localhost:27017/attendance_test_v2')
+    : (process.env.MONGODB_URI || 'mongodb://localhost:27017/attendance_db_v2');
 
 mongoose.connect(DB_URI, {
     useNewUrlParser: true,
@@ -431,38 +411,12 @@ module.exports.seedStudents = seedStudents;
 
 // Only start server if not in test mode
 if (require.main === module) {
-  // Start HTTPS Server
-
-  const httpsServer = https.createServer({ key: pems.private, cert: pems.cert }, app);
-  httpsServer.listen(PORT || 3000, '0.0.0.0', () => {
-    const localIp = getLocalIpAddress();
-    console.log("🚀 Server running on:");
-    console.log(`  💻 Local (computer): https://localhost:3000`);
-    console.log(`  📱 Network (phone/tablet): https://${localIp}:3000`);
-    console.log(`  ⚠️  On mobile, you may see a security warning - click "Advanced" and "Proceed to localhost (unsafe)"`);
-    console.log(`  📋 Make sure your phone and computer are on the same WiFi network`);
-    
-    // Also start HTTP server for easier mobile testing
+    // Start a single HTTP server which Render will expose with TLS.
     const httpServer = require('http').createServer(app);
-    httpServer.listen(3001, '0.0.0.0', () => {
-      console.log(`  🌐 HTTP (easier mobile): http://${localIp}:3001`);
-      console.log(`  📷 Use HTTP URL for QR code scanning on mobile`);
+    httpServer.listen(PORT, '0.0.0.0', () => {
+        const localIp = getLocalIpAddress();
+        console.log(`Server listening on http://0.0.0.0:${PORT}`);
+        console.log(`Local network URL: http://${localIp}:${PORT}`);
     });
-    
-    // Start ngrok tunnel for external access (optional)
-    (async () => {
-      try {
-        // Try to start ngrok tunnel
-        const url = await ngrok.connect({ 
-          proto: 'http', 
-          addr: 3000
-        });
-        console.log('🌐 Public URL (anywhere):', url);
-      } catch (err) {
-        console.log('💡 For mobile access, use the Network URLs above');
-        console.log('💡 For internet access, run: ngrok http 3000');
-      }
-    })();
-  });
 }
 
